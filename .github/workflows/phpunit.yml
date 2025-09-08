@@ -3,15 +3,40 @@ name: PHPUnit
 on:
   push:
     branches: [ main, master ]
+  pull_request:
 
 jobs:
   phpunit:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: [ '8.2' ]
+        php: [ '8.2', '8.3' ] # bisa test di 8.2 & 8.3
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: papanbunga
+          MYSQL_USER: github
+          MYSQL_PASSWORD: github
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
+      - name: Set DB environment for CI
+        run: |
+          echo "DB_CONNECTION=mysql" >> $GITHUB_ENV
+          echo "DB_HOST=127.0.0.1" >> $GITHUB_ENV
+          echo "DB_PORT=3306" >> $GITHUB_ENV
+          echo "DB_DATABASE=papanbunga" >> $GITHUB_ENV
+          echo "DB_USERNAME=github" >> $GITHUB_ENV
+          echo "DB_PASSWORD=github" >> $GITHUB_ENV
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -20,14 +45,42 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           tools: composer:v2
-          extensions: mbstring, pdo, pdo_sqlite, xml
+          extensions: mbstring, pdo, pdo_sqlite, pdo_mysql, xml
           ini-values: post_max_size=256M, memory_limit=2G
 
-      - name: Validate composer
-        run: composer --version
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-${{ matrix.php }}-composer-
+
+      - name: Prepare storage & cache dirs
+        run: |
+          mkdir -p storage/framework/cache/data
+          mkdir -p storage/framework/sessions
+          mkdir -p storage/framework/views
+          mkdir -p storage/logs
+          mkdir -p bootstrap/cache
+          # make writable for the runner
+          chmod -R 0777 storage bootstrap/cache || true
 
       - name: Install dependencies
         run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Install mysql client
+        run: sudo apt-get update && sudo apt-get install -y default-mysql-client
+
+      - name: Wait for MySQL
+        run: |
+          for i in {1..30}; do
+            mysqladmin ping -h127.0.0.1 -uroot -proot &>/dev/null && break || sleep 1;
+          done
 
       - name: Prepare environment
         run: |
@@ -43,4 +96,4 @@ jobs:
         run: php artisan migrate --force
 
       - name: Run PHPUnit
-        run: vendor/bin/phpunit --colors=always --testdox
+        run: php artisan test --colors=always --testdox
