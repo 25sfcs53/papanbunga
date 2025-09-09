@@ -95,12 +95,7 @@ jobs:
         run: |
           if [ ! -f public/build/manifest.json ]; then
             mkdir -p public/build || true
-            cat > public/build/manifest.json <<'JSON'
-{
-  "resources/js/app.js": {"file":"assets/app.js","isEntry":true},
-  "resources/sass/app.scss": {"file":"assets/app.css","isEntry":true}
-}
-JSON
+            echo '{"resources/js/app.js":{"file":"assets/app.js","isEntry":true},"resources/sass/app.scss":{"file":"assets/app.css","isEntry":true}}' > public/build/manifest.json
           fi
 
       - name: Create SQLite database file
