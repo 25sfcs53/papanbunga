@@ -12,9 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php:
-          - '8.2'
-          - '8.3' # bisa test di 8.2 & 8.3
+        php: ['8.2','8.3']
     services:
       mysql:
         image: mysql:8.0
@@ -23,17 +21,12 @@ jobs:
           MYSQL_DATABASE: papanbunga
           MYSQL_USER: github
           MYSQL_PASSWORD: github
-        ports:
-          - "3306:3306"
- HEAD
-        options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=5
-
+        ports: ['3306:3306']
         options: >-
           --health-cmd="mysqladmin ping --silent"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
->>>>>>> 6c522304f2ce675c886329661b0479325e2eafe1
 
     steps:
       - name: Set DB environment for CI
@@ -52,22 +45,14 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
- HEAD
-          tools: "composer:v2"
-=======
-          tools: composer:v2
- 6c522304f2ce675c886329661b0479325e2eafe1
+          tools: 'composer:v2'
           extensions:
             - mbstring
             - pdo
             - pdo_sqlite
             - pdo_mysql
             - xml
- HEAD
-          ini-values: "post_max_size=256M, memory_limit=2G"
-
-          ini-values: post_max_size=256M, memory_limit=2G
- 6c522304f2ce675c886329661b0479325e2eafe1
+          ini-values: 'post_max_size=256M, memory_limit=2G'
 
       - name: Get composer cache directory
         id: composer-cache
@@ -149,4 +134,5 @@ jobs:
           php artisan migrate:status || true
 
       - name: Run PHPUnit
-  run: php artisan test --colors=always --testdox
+        run: php artisan test --colors=always --testdox
+        - name: Run PHPUnit
