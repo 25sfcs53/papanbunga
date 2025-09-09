@@ -19,14 +19,13 @@ class ComponentStockServiceTest extends TestCase
         Component::create(['name' => 'Selamat', 'type' => Component::TYPE_KATA_SAMBUNG, 'quantity_available' => 100]);
         Component::create(['name' => 'Sukses', 'type' => Component::TYPE_KATA_SAMBUNG, 'quantity_available' => 100]);
 
-        // Letters (upper and lower)
-        // We'll add both uppercase and lowercase variants that may be matched
-    // include both upper/lower where tests expect uppercase letters like 'U'
-    $letters = ['S','e','l','a','m','t','U','c','p','n'];
-        foreach ($letters as $ltr) {
-            $type = mb_strtoupper($ltr) === $ltr && mb_strlen($ltr) === 1 && preg_match('/^\p{Lu}$/u', $ltr) ? Component::TYPE_HURUF_BESAR : Component::TYPE_HURUF_KECIL;
-            Component::create(['name' => $ltr, 'type' => $type, 'quantity_available' => 100]);
-        }
+    // Letters (upper and lower)
+    // Create explicit letter components used by the message to avoid charset detection ambiguity in CI
+    Component::create(['name' => 'U', 'type' => Component::TYPE_HURUF_BESAR, 'quantity_available' => 100]);
+    Component::create(['name' => 'c', 'type' => Component::TYPE_HURUF_KECIL, 'quantity_available' => 100]);
+    Component::create(['name' => 'a', 'type' => Component::TYPE_HURUF_KECIL, 'quantity_available' => 100]);
+    Component::create(['name' => 'p', 'type' => Component::TYPE_HURUF_KECIL, 'quantity_available' => 100]);
+    Component::create(['name' => 'n', 'type' => Component::TYPE_HURUF_KECIL, 'quantity_available' => 100]);
 
         $service = new ComponentStockService();
 

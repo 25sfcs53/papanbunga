@@ -92,7 +92,8 @@ class ComponentController extends Controller
      */
     public function store(ComponentRequest $request): RedirectResponse
     {
-        Component::create($request->validated());
+    $data = $this->normalizeType($request->validated());
+    Component::create($data);
 
         return redirect()->route('components.index')->with('status', 'Komponen berhasil dibuat.');
     }
@@ -112,9 +113,27 @@ class ComponentController extends Controller
      */
     public function update(ComponentRequest $request, Component $component): RedirectResponse
     {
-        $component->update($request->validated());
+        $data = $this->normalizeType($request->validated());
+        $component->update($data);
 
         return redirect()->route('components.index')->with('status', 'Komponen berhasil diperbarui.');
+    }
+
+    /**
+     * Normalize legacy type inputs (e.g. 'huruf') to current enum values.
+     */
+    protected function normalizeType(array $data): array
+    {
+        if (isset($data['type']) && $data['type'] === 'huruf') {
+            // default legacy 'huruf' to kata_sambung if name length >1, else huruf_besar
+            if (isset($data['name']) && mb_strlen($data['name']) > 1) {
+                $data['type'] = 'kata_sambung';
+            } else {
+                $data['type'] = 'huruf_besar';
+            }
+        }
+
+        return $data;
     }
 
     /**
