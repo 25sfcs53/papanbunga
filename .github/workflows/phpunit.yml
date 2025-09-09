@@ -67,7 +67,6 @@ jobs:
           mkdir -p storage/framework/views
           mkdir -p storage/logs
           mkdir -p bootstrap/cache
-          # make writable for the runner
           chmod -R 0777 storage bootstrap/cache || true
 
       - name: Install dependencies
