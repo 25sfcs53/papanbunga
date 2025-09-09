@@ -25,7 +25,15 @@ jobs:
           MYSQL_PASSWORD: github
         ports:
           - "3306:3306"
+ HEAD
         options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=5
+
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+>>>>>>> 6c522304f2ce675c886329661b0479325e2eafe1
 
     steps:
       - name: Set DB environment for CI
@@ -44,14 +52,22 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
+ HEAD
           tools: "composer:v2"
+=======
+          tools: composer:v2
+ 6c522304f2ce675c886329661b0479325e2eafe1
           extensions:
             - mbstring
             - pdo
             - pdo_sqlite
             - pdo_mysql
             - xml
+ HEAD
           ini-values: "post_max_size=256M, memory_limit=2G"
+
+          ini-values: post_max_size=256M, memory_limit=2G
+ 6c522304f2ce675c886329661b0479325e2eafe1
 
       - name: Get composer cache directory
         id: composer-cache
