@@ -95,5 +95,30 @@ jobs:
       - name: Run migrations
         run: php artisan migrate --force
 
+      - name: CI diagnostics
+        run: |
+          echo '--- PHP version and modules ---'
+          php -v
+          php -m | sort
+          echo '--- Working directory listing ---'
+          ls -la
+          echo '--- bootstrap and storage listing ---'
+          ls -la bootstrap || true
+          ls -la bootstrap/cache || true
+          ls -la storage || true
+          ls -la storage/framework || true
+          ls -la storage/framework/views || true
+          ls -la storage/logs || true
+          echo '--- Artisan & Laravel info ---'
+          php artisan --version || true
+          php artisan key:generate --ansi || true
+          php artisan config:clear || true
+          php artisan view:clear || true
+          php artisan route:list --no-ansi || true
+          echo '--- Last 200 lines of storage/logs/laravel.log (if present) ---'
+          if [ -f storage/logs/laravel.log ]; then tail -n 200 storage/logs/laravel.log; fi
+          echo '--- Migration status ---'
+          php artisan migrate:status || true
+
       - name: Run PHPUnit
         run: php artisan test --colors=always --testdox
