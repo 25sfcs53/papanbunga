@@ -2,7 +2,9 @@ name: PHPUnit
 
 on:
   push:
-    branches: [ main, master ]
+    branches:
+      - main
+      - master
   pull_request:
 
 jobs:
@@ -10,7 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: [ '8.2', '8.3' ] # bisa test di 8.2 & 8.3
+        php:
+          - '8.2'
+          - '8.3' # bisa test di 8.2 & 8.3
     services:
       mysql:
         image: mysql:8.0
@@ -20,12 +24,8 @@ jobs:
           MYSQL_USER: github
           MYSQL_PASSWORD: github
         ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping --silent"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+          - "3306:3306"
+        options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=5
 
     steps:
       - name: Set DB environment for CI
@@ -44,9 +44,14 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          tools: composer:v2
-          extensions: mbstring, pdo, pdo_sqlite, pdo_mysql, xml
-          ini-values: post_max_size=256M, memory_limit=2G
+          tools: "composer:v2"
+          extensions:
+            - mbstring
+            - pdo
+            - pdo_sqlite
+            - pdo_mysql
+            - xml
+          ini-values: "post_max_size=256M, memory_limit=2G"
 
       - name: Get composer cache directory
         id: composer-cache
@@ -90,12 +95,7 @@ jobs:
         run: |
           if [ ! -f public/build/manifest.json ]; then
             mkdir -p public/build || true
-            cat > public/build/manifest.json <<'JSON'
-{
-  "resources/js/app.js": {"file":"assets/app.js","isEntry":true},
-  "resources/sass/app.scss": {"file":"assets/app.css","isEntry":true}
-}
-JSON
+            echo '{"resources/js/app.js":{"file":"assets/app.js","isEntry":true},"resources/sass/app.scss":{"file":"assets/app.css","isEntry":true}}' > public/build/manifest.json
           fi
 
       - name: Create SQLite database file
@@ -133,4 +133,4 @@ JSON
           php artisan migrate:status || true
 
       - name: Run PHPUnit
-        run: php artisan test --colors=always --testdox
+  run: php artisan test --colors=always --testdox
