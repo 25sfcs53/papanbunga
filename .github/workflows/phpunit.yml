@@ -45,7 +45,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           tools: composer:v2
-          extensions: mbstring, pdo, pdo_sqlite, xml
+          extensions: mbstring, pdo, pdo_sqlite, pdo_mysql, xml
           ini-values: post_max_size=256M, memory_limit=2G
 
       - name: Get composer cache directory
@@ -59,6 +59,16 @@ jobs:
           key: ${{ runner.os }}-php-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-php-${{ matrix.php }}-composer-
+
+      - name: Prepare storage & cache dirs
+        run: |
+          mkdir -p storage/framework/cache/data
+          mkdir -p storage/framework/sessions
+          mkdir -p storage/framework/views
+          mkdir -p storage/logs
+          mkdir -p bootstrap/cache
+          # make writable for the runner
+          chmod -R 0777 storage bootstrap/cache || true
 
       - name: Install dependencies
         run: composer install --no-interaction --no-progress --prefer-dist
@@ -77,6 +87,18 @@ jobs:
           cp .env.example .env || true
           php artisan key:generate --ansi || true
 
+      - name: Ensure Vite manifest exists for tests
+        run: |
+          if [ ! -f public/build/manifest.json ]; then
+            mkdir -p public/build || true
+            cat > public/build/manifest.json <<'JSON'
+{
+  "resources/js/app.js": {"file":"assets/app.js","isEntry":true},
+  "resources/sass/app.scss": {"file":"assets/app.css","isEntry":true}
+}
+JSON
+          fi
+
       - name: Create SQLite database file
         run: |
           mkdir -p database || true
@@ -84,6 +106,32 @@ jobs:
 
       - name: Run migrations
         run: php artisan migrate --force
+
+      - name: CI diagnostics
+        run: |
+          echo '--- PHP version and modules ---'
+          php -v
+          php -m | sort
+          echo '--- Working directory listing ---'
+          ls -la
+          echo '--- bootstrap and storage listing ---'
+          ls -la bootstrap || true
+          ls -la bootstrap/cache || true
+          ls -la storage || true
+          ls -la storage/framework || true
+          ls -la storage/framework/views || true
+          ls -la storage/logs || true
+          echo '--- Artisan & Laravel info ---'
+          php artisan --version || true
+          php artisan key:generate --ansi || true
+          php artisan config:clear || true
+          php artisan view:clear || true
+          php artisan route:clear || true
+          php artisan route:list --no-ansi || true
+          echo '--- Last 200 lines of storage/logs/laravel.log (if present) ---'
+          if [ -f storage/logs/laravel.log ]; then tail -n 200 storage/logs/laravel.log; fi
+          echo '--- Migration status ---'
+          php artisan migrate:status || true
 
       - name: Run PHPUnit
         run: php artisan test --colors=always --testdox

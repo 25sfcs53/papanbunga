@@ -11,7 +11,7 @@ class ComponentStockServiceTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function parse_message_produces_expected_components()
     {
         // Arrange: create components that will be matched
@@ -21,7 +21,8 @@ class ComponentStockServiceTest extends TestCase
 
         // Letters (upper and lower)
         // We'll add both uppercase and lowercase variants that may be matched
-        $letters = ['S','e','l','a','m','t','u','c','p','n'];
+    // include both upper/lower where tests expect uppercase letters like 'U'
+    $letters = ['S','e','l','a','m','t','U','c','p','n'];
         foreach ($letters as $ltr) {
             $type = mb_strtoupper($ltr) === $ltr && mb_strlen($ltr) === 1 && preg_match('/^\p{Lu}$/u', $ltr) ? Component::TYPE_HURUF_BESAR : Component::TYPE_HURUF_KECIL;
             Component::create(['name' => $ltr, 'type' => $type, 'quantity_available' => 100]);

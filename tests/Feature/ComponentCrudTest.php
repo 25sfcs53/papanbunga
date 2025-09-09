@@ -26,7 +26,7 @@ class ComponentCrudTest extends TestCase
         $this->actingAs($owner)
             ->post(route('components.store'), [
                 'name' => 'Huruf A',
-                'type' => 'huruf',
+                'type' => 'huruf_besar',
                 'color' => 'white',
                 'quantity_available' => 10,
             ])
@@ -40,7 +40,7 @@ class ComponentCrudTest extends TestCase
         $this->actingAs($owner)
             ->put(route('components.update', $component), [
                 'name' => 'Huruf A+',
-                'type' => 'huruf',
+                'type' => 'huruf_besar',
                 'color' => 'white',
                 'quantity_available' => 15,
             ])

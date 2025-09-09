@@ -30,23 +30,23 @@ class ComponentController extends Controller
         if ($typeFilter) {
             switch ($typeFilter) {
                 case 'huruf_besar':
-                    // uppercase letters stored as single capital letters; we'll filter by regexp-like approach
-                    $componentsQuery->where('type', 'huruf')->whereRaw("LENGTH(name)=1 AND BINARY name = UPPER(name)");
+                    // uppercase single-letter components
+                    $componentsQuery->where('type', 'huruf_besar')->whereRaw("LENGTH(name)=1 AND BINARY name = UPPER(name)");
                     break;
                 case 'huruf_kecil':
-                    $componentsQuery->where('type', 'huruf')->whereRaw("LENGTH(name)=1 AND BINARY name = LOWER(name)");
+                    $componentsQuery->where('type', 'huruf_kecil')->whereRaw("LENGTH(name)=1 AND BINARY name = LOWER(name)");
                     break;
                 case 'angka':
-                    $componentsQuery->where('type', 'huruf')->whereRaw("name REGEXP '^[0-9]+$'");
+                    $componentsQuery->where('type', 'angka')->whereRaw("name REGEXP '^[0-9]+$'");
                     break;
                 case 'simbol':
-                    $componentsQuery->where('type', 'hiasan')->whereRaw("LENGTH(name)=1 AND name REGEXP '[^A-Za-z0-9]'");
+                    $componentsQuery->where('type', 'simbol')->whereRaw("LENGTH(name)=1 AND name REGEXP '[^A-Za-z0-9]'");
                     break;
                 case 'hiasan':
                     $componentsQuery->where('type', 'hiasan');
                     break;
                 case 'kata_sambung':
-                    $componentsQuery->where('type', 'hiasan')->whereRaw("LENGTH(name) > 1");
+                    $componentsQuery->where('type', 'kata_sambung')->whereRaw("LENGTH(name) > 1");
                     break;
                 default:
                     // no filter
@@ -140,8 +140,12 @@ class ComponentController extends Controller
     protected function meta(): array
     {
         return [
-            'huruf' => 'Huruf/Angka',
-            'hiasan' => 'Hiasan/Symbol',
+            'huruf_besar' => 'Huruf Besar',
+            'huruf_kecil' => 'Huruf Kecil',
+            'angka' => 'Angka',
+            'simbol' => 'Simbol',
+            'hiasan' => 'Hiasan',
+            'kata_sambung' => 'Kata Sambung',
         ];
     }
 }

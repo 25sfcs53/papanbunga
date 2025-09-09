@@ -11,7 +11,7 @@ class ComponentFactory extends Factory
 {
     public function definition(): array
     {
-        $types = ['huruf', 'hiasan'];
+    $types = ['huruf_besar', 'huruf_kecil', 'angka', 'simbol', 'hiasan', 'kata_sambung'];
 
         return [
             'name' => $this->faker->word() . ' ' . $this->faker->randomNumber(2),
