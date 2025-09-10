@@ -46,12 +46,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           tools: 'composer:v2'
-          extensions:
-            - mbstring
-            - pdo
-            - pdo_sqlite
-            - pdo_mysql
-            - xml
+          extensions: 'mbstring, pdo, pdo_sqlite, pdo_mysql, xml'
           ini-values: 'post_max_size=256M, memory_limit=2G'
 
       - name: Get composer cache directory
@@ -135,4 +130,3 @@ jobs:
 
       - name: Run PHPUnit
         run: php artisan test --colors=always --testdox
-        - name: Run PHPUnit
