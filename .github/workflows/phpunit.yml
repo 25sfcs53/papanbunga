@@ -21,7 +21,8 @@ jobs:
           MYSQL_DATABASE: papanbunga
           MYSQL_USER: github
           MYSQL_PASSWORD: github
-        ports: ['3306:3306']
+        ports:
+          - '3306:3306'
         options: >-
           --health-cmd="mysqladmin ping --silent"
           --health-interval=10s
